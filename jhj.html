@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* 스타일 지정 */
+
+        /* 달력 컨테이너 */
+        .sec_cal {
+            width: 360px;
+            margin: 0 auto;
+            font-family: "NotoSansR";
+        }
+
+        /* 달력 상단 네비게이션 */
+        .sec_cal .cal_nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            font-size: 48px;
+            line-height: 78px;
+        }
+
+        .sec_cal .cal_nav .year-month {
+            width: 300px;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .sec_cal .cal_nav .nav {
+            display: flex;
+            border: 1px solid #333333;
+            border-radius: 5px;
+        }
+
+        .sec_cal .cal_nav .go-next,
+        .sec_cal .cal_nav .go-prev {
+            display: block;
+            width: 50px;
+            height: 78px;
+            font-size: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sec_cal .cal_nav .go-next::before,
+        .sec_cal .cal_nav .go-prev::before {
+            content: "";
+            display: block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #000;
+            border-width: 3px 3px 0 0;
+            transition: border 0.1s;
+        }
+
+        .sec_cal .cal_nav .go-next:hover::before,
+        .sec_cal .cal_nav .go-prev:hover::before {
+            border-color: #ed2a61;
+        }
+
+        .sec_cal .cal_nav .go-prev::before {
+            transform: rotate(-135deg);
+        }
+
+        .sec_cal .cal_nav .go-next::before {
+            transform: rotate(45deg);
+        }
+
+        /* 달력 영역 */
+        .sec_cal .cal_wrap {
+            padding-top: 40px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .sec_cal .cal_wrap .days {
+            display: flex;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .sec_cal .cal_wrap::after {
+            top: 368px;
+        }
+
+        .sec_cal .cal_wrap .day {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: calc(100% / 7);
+            text-align: left;
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        /* 현재 날짜 표시 스타일 */
+        .current.today {
+            background: rgb(242 242 242);
+        }
+
+        .sec_cal .cal_wrap .dates {
+            display: flex;
+            flex-flow: wrap;
+            height: 290px;
+        }
+
+        /* 특정 요일 스타일 */
+        .sec_cal .cal_wrap .day:nth-child(7n - 1) {
+            color: #3c6ffa;
+        }
+
+        .sec_cal .cal_wrap .day:nth-child(7n) {
+            color: #ed2a61;
+        }
+
+        /* 비활성화된 날짜 스타일 */
+        .sec_cal .cal_wrap .day.disable {
+            color: #ddd;
+        }
+
+        /* 노트 목록 스타일 */
+        .note-list {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .note-list .title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .note-list .month {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .note-list .note-item {
+            margin-bottom: 5px;
+        }
+
+        .show-note-btn {
+            display: block;
+            margin-top: 20px;
+        }
+
+        .show-date {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 달력 컨테이너 -->
+    <div class="sec_cal">
+        <!-- 달력 상단 네비게이션 -->
+        <div class="cal_nav">
+            <a href="javascript:;" class="nav-btn go-prev">prev</a>
+            <div class="year-month"></div>
+            <a href="javascript:;" class="nav-btn go-next">next</a>
+        </div>
+        <!-- 달력 영역 -->
+        <div class="cal_wrap">
+            <!-- 요일 표시 -->
+            <div class="days">
+                <div class="day">MON</div>
+                <div class="day">TUE</div>
+                <div class="day">WED</div>
+                <div class="day">THU</div>
+                <div class="day">FRI</div>
+                <div class="day">SAT</div>
+                <div class="day">SUN</div>
+            </div>
+            <!-- 날짜 표시 -->
+            <div class="dates"></div>
+        </div>
+    </div>
+
+    <!-- 노트 목록 -->
+    <div class="note-list">
+        <div class="title">Notes</div>
+        <div class="month"></div>
+        <div class="note-item"></div>
+    </div>
+
+    <!-- 노트 확인 버튼 -->
+    <button class="show-note-btn">노트 확인</button>
+
+    <!-- jQuery 라이브러리 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // 페이지 로드 후 실행되는 함수
+        $(document).ready(function () {
+            calendarInit();
+        });
+
+        // 달력 초기화 함수
+        function calendarInit() {
+            // 현재 날짜 정보 가져오기
+            var date = new Date();
+            var utc = date.getTime() + (date.getTimezoneOffset() * 60 * 1000);
+            var kstGap = 9 * 60 * 60 * 1000;
+            var today = new Date(utc + kstGap);
+            var currentYear = today.getFullYear();
+            var currentMonth = today.getMonth();
+            var currentDate = today.getDate();
+
+            // 달력 그리기
+            renderCalendar(currentYear, currentMonth);
+
+            // 달력 그리기 함수
+            function renderCalendar(year, month) {
+                var startDay = new Date(year, month, 1);
+                var prevDate = startDay.getDate();
+                var prevDay = startDay.getDay();
+
+                var endDay = new Date(year, month + 1, 0);
+                var nextDate = endDay.getDate();
+                var nextDay = endDay.getDay();
+
+                // 상단 네비게이션에 년도와 월 표시
+                $('.year-month').text(year + '.' + (month + 1));
+                $('.note-list').hide(); // 월 변경 시 노트 목록 숨기기
+
+                var calendar = document.querySelector('.dates');
+                calendar.innerHTML = '';
+
+                // 달력에 날짜 버튼 추가
+                for (var i = 1; i <= 31; i++) {
+                    var buttonClass = (i === currentDate && month === currentMonth && year === currentYear) ? 'day current today' : 'day current';
+                    calendar.innerHTML += '<div class="' + buttonClass + '">' + i + '</div>';
+                }
+
+                // 이전 달과 다음 달의 비활성화된 날짜 표시
+                for (var i = 1; i <= prevDay; i++) {
+                    calendar.innerHTML = '<div class="day prev disable">' + (prevDate - prevDay + i) + '</div>' + calendar.innerHTML;
+                }
+                for (var i = 1; i <= (7 - nextDay == 7 ? 0 : 7 - nextDay); i++) {
+                    calendar.innerHTML += '<div class="day next disable">' + i + '</div>';
+                }
+
+                // 각 날짜 버튼에 클릭 이벤트 리스너 추가
+                $('.day.current').on('click', function () {
+                    var day = parseInt($(this).text());
+                    addNote(year, month, day);
+                });
+            }
+
+            // 이전 달로 이동 버튼 클릭 시 실행되는 함수
+            $('.go-prev').on('click', function () {
+                if (currentMonth === 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                } else {
+                    currentMonth--;
+                }
+                renderCalendar(currentYear, currentMonth);
+            });
+
+            // 다음 달로 이동 버튼 클릭 시 실행되는 함수
+            $('.go-next').on('click', function () {
+                if (currentMonth === 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                } else {
+                    currentMonth++;
+                }
+                renderCalendar(currentYear, currentMonth);
+            });
+        }
+
+        // 노트 추가 함수
+        function addNote(year, month, day) {
+            var note = prompt("Enter the note for " + (month + 1) + "/" + day + ":");
+            if (note) {
+                $('.month').text((month + 1) + "월");
+                $('.show-date').text(day + "일 노트 확인");
+                $('.note-item').html('<div>' + day + ': ' + note + '</div>');
+                $('.note-list').show();
+            }
+        }
+
+        // 노트 목록 표시/숨김 토글
+        $('.show-note-btn').on('click', function () {
+            $('.note-list').toggle();
+        });
+    </script>
+</body>
+
+</html>
