@@ -3,47 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" type="text/css" href="styles1.css">
-  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css' />
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js'></script>
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.js'></script>
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/locale/ko.js'></script>
+  <link rel="stylesheet" type="text/css" href="styles3.css">
   <title>플랜-아이</title>
 </head>
 <body>
- <?php include 'navbar.php' ?>
-  <nav>
-    <a href="main.php">PlanI</a>
-    <a href="schedule.php">일정관리</a>
-    <div class="nav-right">
-      <a id="login" href="login.html" onclick="login()">로그인</a>
-      <a id="signup" href="register.html">회원가입</a>
-      <a id="logout" href="logoutAction.php" class="hidden" onclick="logout()">로그아웃</a>
-    </div>
-  </nav>
-  <div id='calendar'></div>
-  <button id="createEventButton">일정 추가</button>
-<script>
-  $(document).ready(function() {
-    $('#calendar').fullCalendar({
-      events: './api/events.php', // 백엔드에서 일정 데이터를 가져올 API 엔드포인트
-      header: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'month,agendaWeek,agendaDay'
-      },
-      locale: 'ko', // 한국어 설정
-      defaultView: 'agendaWeek',
-      editable: true,
-      dayClick: function(date, jsEvent, view) {
-        window.location.href = 'createEvent.html?date=' + date.format();
-      }
-    });
+<?php include 'navbar.php'; ?>
+  <br>
+  <div id="dateRange"></div>
+  <button id="prevBtn" class="btn">&lt;</button>
+  <button id="nextBtn" class="btn">&gt;</button>
+  <button id="todayBtn" class="btn">오늘</button>
+  <button id="monthViewBtn" class="btn">월</button>
+  <button id="weekViewBtn" class="btn">주</button>
+  <br><br>
+  <div id="weekTable">
+  <table id="scheduleTable">
+    <thead>
+      <tr>
+        <th colspan="8" id="dateRangeText"></th>
+      </tr>
+      <tr>
+        <th>시간</th>
+        <th id="day1"></th>
+        <th id="day2"></th>
+        <th id="day3"></th>
+        <th id="day4"></th>
+        <th id="day5"></th>
+        <th id="day6"></th>
+        <th id="day7"></th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  </div>
 
-      $('#createEventButton').click(function() {
-        window.location.href = 'createEvent.html';
-    });
-  });
-</script>
+  <div id="monthTable">
+  <table class="monthTable">
+    <thead>
+      <tr>
+        <th colspan="7" id="monthLabel"></th>
+      </tr>
+      <tr>
+        <th>일</th>
+        <th>월</th>
+        <th>화</th>
+        <th>수</th>
+        <th>목</th>
+        <th>금</th>
+        <th>토</th>
+      </tr>
+    </thead>
+    <tbody id="monthBody">
+    
+    </tbody>
+  </table>
+  </div>
+
+  <button id="addEventBtn" class="btn">일정 추가</button>
+  <button id="deleteEventBtn" class="btn">일정 삭제</button>
+
+  <script src="calendar.js"></script>
 </body>
 </html>
