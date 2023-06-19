@@ -1,8 +1,8 @@
 <?php
 $servername = "localhost";   
-$username = "root";       
-$password = "1234";       
-$dbname = "plani";    
+$username = "plani";       
+$password = "qmsk#2943";       
+$dbname = "plani";  
 
 $id = $_POST['id'];
 $name = $_POST['name'];
@@ -14,7 +14,7 @@ if ($conn->connect_error) {
   die("MySQL 연결 실패: " . $conn->connect_error);
 }
 
-$sql = "INSERT INTO Users (id, name, email, contact) VALUES ('$id', '$name', '$email', '$contact')";
+$sql = "INSERT INTO users (id, name, email, contact) VALUES ('$id', '$name', '$email', '$contact')";
 if ($conn->query($sql) === TRUE) {
   header("Refresh: 1; URL=main.php");
   echo "회원가입이 완료되었습니다.";
